@@ -20,8 +20,8 @@ let upload = multer({ storage, limits: { fileSize: 1000000 * 100 } }).single(
 
 router.post("/", (req, res) => {
     // Store Files
-    console.log(req);
     upload(req, res, async (err) => {
+        console.log(req);
         // Validate Request
         if (!req.file) {
             return res.json({ error: "All Fields are Required" });
@@ -33,7 +33,7 @@ router.post("/", (req, res) => {
 
         // Store Information in Database
         const file = new File({
-            filename: req.file.filename,
+            filename: req.file.originalname,
             uuid: uuid4(),
             path: req.file.path,
             size: req.file.size,
@@ -54,9 +54,6 @@ router.post("/send", async (req, res) => {
     }
     // GET DATA FROM DATABASE
     const file = await File.findOne({ uuid: uuid });
-    // if (file.sender) {
-    //     return res.status(422).send({ error: "Email Already Sent" });
-    // }
     file.sender = emailFrom;
     file.receiver = emailTo;
     const response = await file.save();
