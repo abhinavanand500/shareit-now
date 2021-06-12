@@ -46,13 +46,23 @@ router.post("/", (req, res) => {
     });
 });
 
-router.post("/send", (req, res) => {
+router.post("/send", async (req, res) => {
     const { uuid, emailTo, emailFrom } = req.body;
     if (!uuid || !emailTo || !emailFrom) {
         return res.status(404).send({ error: "All Fields are required" });
     }
     // GET DATA FROM DATABASE
     const file = await File.findOne({ uuid: uuid });
+    if(file.sender){
+        return res.status(422).send({error:"Email Already Sent"})
+    }
+    file.sender = emailFrom;
+    file.receiver = emailTo;
+    const response = await file.save();
+
+
+    // SEND EMAIL
+    
 });
 
 module.exports = router;
