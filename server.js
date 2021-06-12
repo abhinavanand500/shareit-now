@@ -1,10 +1,15 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 const path = require("path");
 const PORT = process.env.PORT || 3001;
 app.use(express.static("public"));
 const connectDb = require("./config/db");
 connectDb();
+const corsOptions = {
+    origin: process.env.ALLOWED_CLIENTS.split(","),
+};
+app.use(cors(corsOptions));
 // Template÷
 app.use(express.json());
 app.set("views", path.join(__dirname, "/views"));
