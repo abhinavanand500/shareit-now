@@ -53,16 +53,28 @@ router.post("/send", async (req, res) => {
     }
     // GET DATA FROM DATABASE
     const file = await File.findOne({ uuid: uuid });
-    if(file.sender){
-        return res.status(422).send({error:"Email Already Sent"})
-    }
+    // if (file.sender) {
+    //     return res.status(422).send({ error: "Email Already Sent" });
+    // }
     file.sender = emailFrom;
     file.receiver = emailTo;
     const response = await file.save();
 
-
     // SEND EMAIL
-    
+    const sendMail = require("../services/emailServices");
+    sendMail({
+        from: emailFrom,
+        to: emailTo,
+        subject: "File Sharing",
+        text: `${emailFrom} shared a file with you`,
+        html: require("../services/emailTemplate")({
+            emailFrom: emailFrom,
+            downloadLink: `${process.env.APP_BASE_URL}/files/${file.uuid}`,
+            size: parseInt(file.size / 1000) + " KB",
+            expires: "24 hours",
+        }),
+    });
+    return res.send({ success: "Succesfully Sent" });
 });
 
 module.exports = router;
